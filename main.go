@@ -23,7 +23,7 @@ func run() error {
 	logfilename := flag.String("log", "-", "log filename")
 	databaseURL := flag.String("db-url", os.Getenv("DATABASE_URL"), "database URL (can be set with DATABASE_URL environment variable)")
 	databaseName := flag.String("db-name", "", "database name")
-	interval := flag.Duration("interval", 100*time.Millisecond, "query interval")
+	interval := flag.Duration("interval", time.Second, "query interval")
 	showVersion := flag.Bool("version", false, "show version and exit")
 	flag.Parse()
 
