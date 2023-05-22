@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -32,14 +33,18 @@ func run() error {
 		return nil
 	}
 
-	if *logfilename != "-" {
+	var out io.Writer
+	if *logfilename == "-" {
+		out = os.Stdout
+	} else {
 		errorLogFile, err := os.OpenFile(*logfilename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			return err
 		}
 		defer errorLogFile.Close()
-		ltsvlog.Logger = ltsvlog.NewLTSVLogger(errorLogFile, false)
+		out = errorLogFile
 	}
+	ltsvlog.Logger = ltsvlog.NewLTSVLogger(out, false, ltsvlog.SetLevelLabel(""))
 
 	conn, err := pgx.Connect(context.Background(), *databaseURL)
 	if err != nil {
