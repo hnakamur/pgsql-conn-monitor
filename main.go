@@ -52,19 +52,13 @@ func run() error {
 
 	timer := time.NewTimer(*interval)
 	for {
-		var numBackends, activityCount int
-		q := `SELECT s.numbackends, a.activity_count
-FROM (
-SELECT numbackends FROM pg_stat_database WHERE datname = $1
-) s
-CROSS JOIN (
-SELECT COUNT(*) AS activity_count FROM pg_stat_activity
-) a`
-		if err := conn.QueryRow(ctx, q, *databaseName).Scan(&numBackends, &activityCount); err != nil {
+		var numBackends int
+		q := `SELECT numbackends FROM pg_stat_database WHERE datname = $1`
+		if err := conn.QueryRow(ctx, q, *databaseName).Scan(&numBackends); err != nil {
 			return err
 		}
 
-		ltsvlog.Logger.Info().Int("numBackends", numBackends).Int("activityCount", activityCount).Log()
+		ltsvlog.Logger.Info().Int("numBackends", numBackends).Log()
 
 		select {
 		case <-ctx.Done():
